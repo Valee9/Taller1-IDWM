@@ -1,6 +1,6 @@
 import Client from '../models/client.js';
 
-export const getAdmins = async (req, res) => {
+export const getClients = async (req, res) => {
 
     try {
         const clients = await Client.find();
