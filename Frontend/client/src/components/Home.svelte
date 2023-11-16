@@ -1,5 +1,6 @@
 <script>
   import { validateRUT } from "validar-rut";
+  import { auth } from "../stores/Auth";
 
   let clients = [];
 
@@ -21,6 +22,7 @@
   let isOpen4 = false;
   let isOpen5 = false;
   let isOpen6 = false;
+  let isOpen7 = false;
 
   let api = true;
   let message = "";
@@ -58,14 +60,12 @@
   }
 
   async function createClient() {
-    const status = 1;
     const data = {
       name,
       lastname,
       nid,
       email,
-      point,
-      status,
+      point
     };
     console.log(data);
     const response = await fetch(
@@ -95,7 +95,7 @@
       }
     } else {
       const errorData = await response.json();
-        console.error("Error en la solicitud al servidor:", errorData.message);
+      console.error("Error en la solicitud al servidor:", errorData.message);
 
       modal();
       isOpen3 = !isOpen3;
@@ -105,12 +105,27 @@
     }
   }
 
+  let originalClientData = {};
   function closeModalEdit() {
+    selectedClient.name = originalClientData.name;
+    selectedClient.lastname = originalClientData.lastname;
+    selectedClient.nid = originalClientData.nid;
+    selectedClient.email = originalClientData.email;
+    selectedClient.point = originalClientData.point;
     isOpen5 = !isOpen5;
   }
 
   function modalEdit(nid) {
     selectedClient = clients.find((client) => client.nid === nid);
+
+    originalClientData = {
+      name: selectedClient.name,
+      lastname: selectedClient.lastname,
+      nid: selectedClient.nid,
+      email: selectedClient.email,
+      point: selectedClient.point,
+    };
+
     nameError = false;
     lastnameError = false;
     isValidNid = true;
@@ -120,14 +135,12 @@
   }
 
   async function editClient(name, lastname, nid, email, point) {
-    const status = 1;
     const data = {
       name,
       lastname,
       nid,
       email,
-      point,
-      status,
+      point
     };
     console.log(data);
     const response = await fetch(
@@ -155,32 +168,20 @@
 
   async function deleteClient(nid) {
     isOpen1 = !isOpen1;
+    console.log(nid)
     isOpen2 = !isOpen2;
     setTimeout(() => {
       isOpen2 = !isOpen2;
     }, 1500);
 
-    const status = 0;
-    const data = {
-      nameDelete,
-      lastnameDelete,
-      nid,
-      emailDelete,
-      pointDelete,
-      status,
-    };
-
-    console.log(data);
-
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BASE_API_URL}/clients/${nid}`,
         {
-          method: "PUT",
+          method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ data }),
         }
       );
 
@@ -324,6 +325,27 @@
 
     return false;
   }
+  
+  function modal2 () {
+    isOpen7 = !isOpen7
+  }
+
+  function handleLogout() {
+    auth.clearToken();
+    isLoggedIn() == false;
+    const homeURL = "/";
+    window.history.replaceState({}, document.title, homeURL);
+    window.location.href = homeURL;
+  }
+
+  const token = sessionStorage.getItem("jwtToken");
+  function isLoggedIn() {
+    if (token) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   function handleChangeEmail(e) {
     if (e.key === " ") {
@@ -358,16 +380,41 @@
       currentPage--;
     }
   }
+
+  let searchTerm = "";
+  let searchResults = clients;
+
+  function handleSearch() {
+    const lowerCaseTerm = searchTerm.toLowerCase();
+    searchResults = clients.filter((client) =>
+      client.nid.toLowerCase().includes(lowerCaseTerm)
+    );
+  }
 </script>
 
 <body style="background-color: white;">
   <main>
     <div class="div-main">
+      <div style="text-align: end;">
+        <button
+        on:click={modal2}
+        type="button"
+        class="button-icon col bi bi-box-arrow-right"
+        style="background-color: #8e8e8e; margin-bottom: 10px;"
+        data-toggle="tooltip"
+        data-placement="bottom"
+        title="Cerra sesión"
+      />
+      </div>
       <div
         style="background-color: #f0f0f0; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; margin-bottom: 20px"
       >
         <p class="title-info" style="margin: 5px 0">Listado de clientes</p>
       </div>
+      <!-- <div>
+          <input type="text" bind:value={searchTerm} on:input={handleSearch} placeholder="Buscar" />
+        </div> -->
+      
       {#if api || clients.length === 0}
         <h2
           class="title-info"
@@ -384,7 +431,7 @@
             style="background-color: #18cf5e; margin-bottom: 10px;"
             data-toggle="tooltip"
             data-placement="bottom"
-            title="Agregar"
+            title="Crear"
           />
         </div>
         <div class="text-center table-responsive">
@@ -400,7 +447,7 @@
               </tr>
             </thead>
             <tbody>
-              {#each clients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) as item}
+              {#each clients as item}
                 <tr>
                   <td>{item.name}</td>
                   <td>{item.lastname}</td>
@@ -483,7 +530,7 @@
           </div>
           <div class="container-modal">
             <form on:submit|preventDefault={createClient}>
-              <h3>Agregar cliente</h3>
+              <h3>Crear cliente</h3>
               <div class="label-input">
                 <label for="nameClient" class="form-label">Nombre *</label>
                 <input
@@ -491,7 +538,7 @@
                   class="form-control input-edit"
                   on:input={handleChangeName}
                   bind:value={name}
-                  placeholder="Nombre"
+                  placeholder="Juan"
                   required
                 />
                 {#if nameError}
@@ -512,7 +559,7 @@
                   class="form-control input-edit"
                   on:input={handleChangeLastname}
                   bind:value={lastname}
-                  placeholder="Apellido"
+                  placeholder="Perez"
                   required
                 />
                 {#if lastnameError}
@@ -554,7 +601,7 @@
                   class="form-control input-edit"
                   on:input={handleChangeEmail}
                   bind:value={email}
-                  placeholder="Correo electrónico"
+                  placeholder="prueba@gmail.com"
                   required
                 />
                 {#if isValidEmail}
@@ -574,7 +621,7 @@
                   class="form-control input-edit"
                   on:input={handleChangePoint}
                   bind:value={point}
-                  placeholder="Número de teléfono"
+                  placeholder="20"
                   required
                 />
                 {#if pointError}
@@ -643,7 +690,9 @@
     {#if isOpen3}
       <div class="modal-overlay">
         <div class="modal-software w-50">
-          <h5>Error al crear el cliente, el rut o correo electrónico ya existen.</h5>
+          <h5>
+            Error al crear el cliente, el rut o correo electrónico ya existen.
+          </h5>
         </div>
       </div>
     {/if}
@@ -679,6 +728,7 @@
                   class="form-control input-edit"
                   on:input={handleChangeName}
                   bind:value={selectedClient.name}
+                  placeholder="Juan"
                   required
                 />
                 {#if nameError}
@@ -700,6 +750,7 @@
                   class="form-control input-edit"
                   on:input={handleChangeLastname}
                   bind:value={selectedClient.lastname}
+                  placeholder="Perez"
                   required
                 />
                 {#if lastnameError}
@@ -741,6 +792,7 @@
                   class="form-control input-edit"
                   on:input={handleChangeEmail}
                   bind:value={selectedClient.email}
+                  placeholder="prueba@gmail.com"
                   required
                 />
                 {#if isValidEmail}
@@ -760,6 +812,7 @@
                   class="form-control input-edit"
                   on:input={handleChangePoint}
                   bind:value={selectedClient.point}
+                  placeholder="20"
                   required
                 />
                 {#if pointError}
@@ -800,5 +853,22 @@
         </div>
       </div>
     {/if}
+
+    {#if isOpen7}
+            <div class='modal-overlay'>
+                <div class='modal-software w-50'>
+                    <div style='text-align:right'>
+                        <button class='close-button' on:click={modal2}>&times;</button>
+                    </div>
+                    <div class='container-modal'>
+                        <h2>¿Estas seguro que deseas cerrar sesión?</h2>
+                        <div class='modal-button'>
+                            <button class='button-confirm' on:click={handleLogout}>Confirmar</button>
+                            <button class='button-confirm button-cancel' on:click={modal}>Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/if}
   </main>
 </body>

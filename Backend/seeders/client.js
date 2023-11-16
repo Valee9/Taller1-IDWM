@@ -9,23 +9,20 @@ export const clientSeeds = [
         lastname: "Urvina",
         nid: "123456789",
         email: "ricky@correo.com",
-        point: 42,
-        status: 0
+        point: 42
     },
     {
         name: "Juan",
         lastname: "Perez",
         nid: "207845337",
         email: "juan@correo.com",
-        point: 30,
-        status: 1
+        point: 30
     },
     {
         name: "Vale",
         lastname: "Hormazabal",
         nid: "209408775",
         email: "vale@correo.com",
-        point: 35,
-        status: 1
+        point: 35
     }
 ];

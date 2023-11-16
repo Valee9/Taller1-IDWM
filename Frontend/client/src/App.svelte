@@ -4,19 +4,6 @@
   import Login from "./components/Login.svelte";
 
   const token = sessionStorage.getItem("jwtToken");
-  let iat = getTokenByIat(token);
-
-  function getTokenByIat(token) {
-    if (!token) {
-      return null;
-    }
-    const decodedToken = decodeToken(token);
-    if (!decodedToken || !decodedToken.iat) {
-      return null;
-    }
-
-    return decodedToken.iat;
-  }
 
   function decodeToken(token) {
     if (!token) {
@@ -35,12 +22,12 @@
 
     return JSON.parse(jsonPayload);
   }
-  console.log(iat)
+  console.log(token)
 </script>
 
 <Router>
   <Route path="/" component={Login} />
-  {#if iat != 0}
+  {#if token}
     <Route path="/home" component={Home} />
   {/if}
 </Router>
