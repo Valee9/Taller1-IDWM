@@ -17,17 +17,6 @@ export const getClients = async (req, res) => {
 export const createClient = async (req, res) => {
     const client = req.body;
 
-    // const existingClient = await Client.findOne({
-    //     $or: [
-    //         { rut: client.rut },
-    //         { email: client.email }
-    //     ]
-    // });
-
-    // if (existingClient) {
-    //     return res.status(400).json({ message: "El Rut o el correo electrónico ya existe" });
-    // }
-
     try {
         const newClient = await Client.create(client);
         res.status(201).json({ created: true, client: newClient });

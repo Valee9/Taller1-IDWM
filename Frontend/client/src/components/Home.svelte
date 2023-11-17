@@ -47,25 +47,22 @@
   let nidDelete = "";
   let nameDelete = "";
   let lastnameDelete = "";
-  let emailDelete = "";
-  let pointDelete = "";
 
   function modal1(nid, name, lastname, email, point) {
     isOpen1 = !isOpen1;
     nidDelete = nid;
     nameDelete = name;
     lastnameDelete = lastname;
-    emailDelete = email;
-    pointDelete = point;
   }
 
   async function createClient() {
+    nid = nid.toUpperCase();
     const data = {
       name,
       lastname,
       nid,
       email,
-      point
+      point,
     };
     console.log(data);
     const response = await fetch(
@@ -89,7 +86,7 @@
           isOpen4 = !isOpen4;
         }, 1500);
         modal();
-        // window.location.reload();
+        window.location.reload();
       } else {
         console.log("Error al crear al cliente", response.status);
       }
@@ -135,12 +132,13 @@
   }
 
   async function editClient(name, lastname, nid, email, point) {
+    nid = nid.toUpperCase();
     const data = {
       name,
       lastname,
       nid,
       email,
-      point
+      point,
     };
     console.log(data);
     const response = await fetch(
@@ -168,7 +166,7 @@
 
   async function deleteClient(nid) {
     isOpen1 = !isOpen1;
-    console.log(nid)
+    console.log(nid);
     isOpen2 = !isOpen2;
     setTimeout(() => {
       isOpen2 = !isOpen2;
@@ -325,9 +323,9 @@
 
     return false;
   }
-  
-  function modal2 () {
-    isOpen7 = !isOpen7
+
+  function modal2() {
+    isOpen7 = !isOpen7;
   }
 
   function handleLogout() {
@@ -362,10 +360,8 @@
 
   function updatePagination() {
     const totalItems = clients.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    if (currentPage > totalPages) {
-      currentPage = totalPages;
-    }
+    totalPages = Math.ceil(totalItems / itemsPerPage);
+    currentPage = 1;
   }
 
   function nextPage() {
@@ -379,6 +375,14 @@
     if (currentPage > 1) {
       currentPage--;
     }
+  }
+
+  function formatDni(dni) {
+    const last = dni.slice(-1);
+    const start = dni.slice(0, -1);
+    const dniFormat = start + "-" + last;
+
+    return dniFormat;
   }
 
   let searchTerm = "";
@@ -397,24 +401,22 @@
     <div class="div-main">
       <div style="text-align: end;">
         <button
-        on:click={modal2}
-        type="button"
-        class="button-icon col bi bi-box-arrow-right"
-        style="background-color: #8e8e8e; margin-bottom: 10px;"
-        data-toggle="tooltip"
-        data-placement="bottom"
-        title="Cerra sesión"
-      />
+          on:click={modal2}
+          type="button"
+          class="button-icon col bi bi-box-arrow-right"
+          style="background-color: #8e8e8e; margin-bottom: 10px;"
+          data-toggle="tooltip"
+          data-placement="bottom"
+          title="Cerra sesión"
+        />
       </div>
-      <div
-        style="background-color: #f0f0f0; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; margin-bottom: 20px"
-      >
+      <div class="title">
         <p class="title-info" style="margin: 5px 0">Listado de clientes</p>
       </div>
       <!-- <div>
           <input type="text" bind:value={searchTerm} on:input={handleSearch} placeholder="Buscar" />
         </div> -->
-      
+
       {#if api || clients.length === 0}
         <h2
           class="title-info"
@@ -438,23 +440,23 @@
           <table class="table table-striped border table-bordered align-middle">
             <thead class="align-middle">
               <tr>
-                <th class="col-2">Nombre</th>
-                <th class="col-2">Apellidos</th>
-                <th class="col-2">N° de identificación</th>
-                <th class="col-2">Correo electrónico</th>
-                <th class="col-2">Puntos obtenidos</th>
-                <th class="col-2">Acciones</th>
+                <th style="width:15%">Nombre</th>
+                <th style="width:15%">Apellidos</th>
+                <th style="width:20%">N° de identificación</th>
+                <th style="width:20%">Correo electrónico</th>
+                <th style="width:15%">Puntos obtenidos</th>
+                <th style="width:15%">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {#each clients as item}
+              {#each clients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) as item, index (index + 1)}
                 <tr>
-                  <td>{item.name}</td>
-                  <td>{item.lastname}</td>
-                  <td>{item.nid}</td>
-                  <td>{item.email}</td>
-                  <td>{item.point}</td>
-                  <td>
+                  <td style="width:15%">{item.name}</td>
+                  <td style="width:15%">{item.lastname}</td>
+                  <td style="width:20%">{formatDni(item.nid)}</td>
+                  <td style="width:20%">{item.email}</td>
+                  <td style="width:15%">{item.point}</td>
+                  <td style="width:15%">
                     <div
                       class="button-container display-flex justify-content-center align-items-center;"
                     >
@@ -462,7 +464,7 @@
                         on:click={() => modalEdit(item.nid)}
                         type="button"
                         class="button-icon col bi bi-pencil-fill"
-                        style=" background-color: #FBD24E; margin-right: 10px"
+                        style=" background-color: #FBD24E; margin: 0 5px"
                         data-toggle="tooltip"
                         data-placement="bottom"
                         title="Editar"
@@ -478,7 +480,7 @@
                           )}
                         type="button"
                         class="button-icon col bi bi-trash-fill"
-                        style="background-color: red;"
+                        style="background-color: red; margin:5px 5px 0 5px"
                         data-toggle="tooltip"
                         data-placement="bottom"
                         title="Eliminar"
@@ -492,7 +494,7 @@
         </div>
 
         {#if clients.length > 5}
-          <div class="pagination-container">
+          <div class="pagination-container fixed-bottom">
             <nav aria-label="Page navigation example">
               <ul class="pagination justify-content-center">
                 <li class="page-item">
@@ -855,20 +857,24 @@
     {/if}
 
     {#if isOpen7}
-            <div class='modal-overlay'>
-                <div class='modal-software w-50'>
-                    <div style='text-align:right'>
-                        <button class='close-button' on:click={modal2}>&times;</button>
-                    </div>
-                    <div class='container-modal'>
-                        <h2>¿Estas seguro que deseas cerrar sesión?</h2>
-                        <div class='modal-button'>
-                            <button class='button-confirm' on:click={handleLogout}>Confirmar</button>
-                            <button class='button-confirm button-cancel' on:click={modal}>Cancelar</button>
-                        </div>
-                    </div>
-                </div>
+      <div class="modal-overlay">
+        <div class="modal-software w-50">
+          <div style="text-align:right">
+            <button class="close-button" on:click={modal2}>&times;</button>
+          </div>
+          <div class="container-modal">
+            <h2>¿Estas seguro que deseas cerrar sesión?</h2>
+            <div class="modal-button">
+              <button class="button-confirm" on:click={handleLogout}
+                >Confirmar</button
+              >
+              <button class="button-confirm button-cancel" on:click={modal}
+                >Cancelar</button
+              >
             </div>
-            {/if}
+          </div>
+        </div>
+      </div>
+    {/if}
   </main>
 </body>
