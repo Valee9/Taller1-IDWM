@@ -3,6 +3,7 @@
   import { auth } from "../stores/Auth";
 
   let clients = [];
+  let searchResults = [];
 
   let name = "";
   let lastname = "";
@@ -23,6 +24,8 @@
   let isOpen5 = false;
   let isOpen6 = false;
   let isOpen7 = false;
+  let isOpen8 = false;
+  let isOpen9 = false;
 
   let api = true;
   let message = "";
@@ -57,6 +60,8 @@
 
   async function createClient() {
     nid = nid.toUpperCase();
+    name = capitalizeName(name);
+    lastname = capitalizeName(lastname);
     const data = {
       name,
       lastname,
@@ -89,6 +94,11 @@
         window.location.reload();
       } else {
         console.log("Error al crear al cliente", response.status);
+        modal();
+        isOpen3 = !isOpen3;
+        setTimeout(() => {
+          isOpen3 = !isOpen3;
+        }, 1500);
       }
     } else {
       const errorData = await response.json();
@@ -133,6 +143,8 @@
 
   async function editClient(name, lastname, nid, email, point) {
     nid = nid.toUpperCase();
+    name = capitalizeName(name);
+    lastname = capitalizeName(lastname);
     const data = {
       name,
       lastname,
@@ -161,37 +173,41 @@
     } else {
       console.log("Error al editar el cliente");
       isOpen5 = !isOpen5;
+      isOpen8 = !isOpen8;
+      setTimeout(() => {
+        isOpen8 = !isOpen8;
+      }, 1500);
     }
   }
 
   async function deleteClient(nid) {
-    isOpen1 = !isOpen1;
-    console.log(nid);
-    isOpen2 = !isOpen2;
-    setTimeout(() => {
-      isOpen2 = !isOpen2;
-    }, 1500);
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_API_URL}/clients/${nid}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        const updatedclients = await getClientsUpdate();
-        clients = updatedclients;
-        window.location.reload();
-      } else {
-        message = `Error al eliminar al cliente: ${response.statusText}`;
+    const response = await fetch(
+      `${import.meta.env.VITE_BASE_API_URL}/clients/${nid}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    } catch (error) {
-      message = `Error al eliminar al cliente: ${error.message}`;
+    );
+
+    if (response.ok) {
+      const updatedclients = await getClientsUpdate();
+      clients = updatedclients;
+      isOpen1 = !isOpen1;
+      console.log(nid);
+      isOpen2 = !isOpen2;
+      setTimeout(() => {
+        isOpen2 = !isOpen2;
+      }, 1500);
+      window.location.reload();
+    } else {
+      message = `Error al eliminar al cliente: ${response.statusText}`;
+      isOpen1 = !isOpen1;
+      isOpen9 = !isOpen9;
+      setTimeout(() => {
+        isOpen9 = !isOpen9;
+      }, 1500);
     }
   }
   async function getClientsUpdate() {
@@ -215,6 +231,7 @@
 
       if (response.ok) {
         clients = await response.json();
+        searchResults = clients;
         rowCount = clients.length;
         if (rowCount === 5) {
           showButton = true;
@@ -238,6 +255,12 @@
   let email1 = "";
   let point1 = 0;
   let subject1 = "";
+
+  function capitalizeName(name) {
+    return name
+      .toLowerCase()
+      .replace(/\b\w/g, (firstChar) => firstChar.toUpperCase());
+  }
 
   function handleChangeName(e) {
     if (e.key === " ") {
@@ -344,7 +367,7 @@
       return false;
     }
   }
-
+// 
   function handleChangeEmail(e) {
     if (e.key === " ") {
       e.preventDefault();
@@ -362,6 +385,11 @@
     const totalItems = clients.length;
     totalPages = Math.ceil(totalItems / itemsPerPage);
     currentPage = 1;
+  }
+
+  function showPage(page) {
+    currentPage = page;
+    console.log({ currentPage });
   }
 
   function nextPage() {
@@ -386,12 +414,12 @@
   }
 
   let searchTerm = "";
-  let searchResults = clients;
 
   function handleSearch() {
     const lowerCaseTerm = searchTerm.toLowerCase();
     searchResults = clients.filter((client) =>
-      client.nid.toLowerCase().includes(lowerCaseTerm)
+      client.nid.toLowerCase().includes(lowerCaseTerm) ||
+      client.email.toLowerCase().includes(lowerCaseTerm)
     );
   }
 </script>
@@ -413,9 +441,7 @@
       <div class="title">
         <p class="title-info" style="margin: 5px 0">Listado de clientes</p>
       </div>
-      <!-- <div>
-          <input type="text" bind:value={searchTerm} on:input={handleSearch} placeholder="Buscar" />
-        </div> -->
+      <div />
 
       {#if api || clients.length === 0}
         <h2
@@ -425,16 +451,30 @@
           No hay clientes registrados.
         </h2>
       {:else}
-        <div style="text-align: end;">
-          <button
-            on:click={modal}
-            type="button"
-            class="button-icon col bi bi-plus-lg"
-            style="background-color: #18cf5e; margin-bottom: 10px;"
-            data-toggle="tooltip"
-            data-placement="bottom"
-            title="Crear"
-          />
+        <div
+          class="d-flex justify-content-between align-items-center"
+          style="margin-bottom: 10px;"
+        >
+          <div class="flex-fill text-center" style="margin-left: 40px">
+            <input
+              type="text"
+              class="input-search"
+              bind:value={searchTerm}
+              placeholder="Buscar por RUT/DNI o correo"
+              on:input={handleSearch}
+            />
+          </div>
+          <div class="text-end">
+            <button
+              on:click={modal}
+              type="button"
+              class="button-icon col bi bi-plus-lg"
+              style="background-color: #18cf5e;"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="Crear"
+            />
+          </div>
         </div>
         <div class="text-center table-responsive">
           <table class="table table-striped border table-bordered align-middle">
@@ -449,7 +489,7 @@
               </tr>
             </thead>
             <tbody>
-              {#each clients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) as item, index (index + 1)}
+              {#each searchResults.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) as item, index (index + 1)}
                 <tr>
                   <td style="width:15%">{item.name}</td>
                   <td style="width:15%">{item.lastname}</td>
@@ -494,7 +534,7 @@
         </div>
 
         {#if clients.length > 5}
-          <div class="pagination-container fixed-bottom">
+          <div class="pagination-container fixed-bottom mb-3">
             <nav aria-label="Page navigation example">
               <ul class="pagination justify-content-center">
                 <li class="page-item">
@@ -507,6 +547,16 @@
                     <span aria-hidden="true">&laquo;</span>
                   </a>
                 </li>
+                {#each Array.from({ length: totalPages }, (_, i) => i + 1) as page}
+                  <li class="page-item">
+                    <a
+                      class:active={currentPage === page}
+                      class="page-link"
+                      href="#"
+                      on:click={() => showPage(page)}>{page}</a
+                    >
+                  </li>
+                {/each}
                 <li class="page-item">
                   <a
                     class="page-link"
@@ -670,10 +720,10 @@
             <div class="modal-button">
               <button
                 class="button-confirm"
-                on:click={() => deleteClient(nidDelete)}>Confirmar</button
+                on:click={() => deleteClient(nidDelete)}>Si</button
               >
               <button class="button-confirm button-cancel" on:click={modal1}
-                >Cancelar</button
+                >No</button
               >
             </div>
           </div>
@@ -710,6 +760,9 @@
     {#if isOpen5}
       <div class="modal-overlay">
         <div class="modal-software w-50">
+          <div style="text-align:right">
+            <button class="close-button" on:click={closeModalEdit}>&times;</button>
+          </div>
           <div class="container-modal">
             <form
               on:submit|preventDefault={() =>
@@ -873,6 +926,22 @@
               >
             </div>
           </div>
+        </div>
+      </div>
+    {/if}
+
+    {#if isOpen8}
+      <div class="modal-overlay">
+        <div class="modal-software w-50">
+          <h5>Error al editar el cliente.</h5>
+        </div>
+      </div>
+    {/if}
+
+    {#if isOpen9}
+      <div class="modal-overlay">
+        <div class="modal-software w-50">
+          <h5>Error al eliminar el cliente.</h5>
         </div>
       </div>
     {/if}

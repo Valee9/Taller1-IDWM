@@ -26,10 +26,6 @@
         }
     }
 
-    function modal() {
-        isOpen = !isOpen;
-    }
-
     let token = sessionStorage.getItem("jwtToken");
     async function login() {
         const data = {
@@ -43,79 +39,82 @@
             {
                 method: "POST",
                 headers: {
-            "Content-Type": "application/json",
-          },
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify(data),
             }
         );
 
-
         if (response.ok) {
             token = await response.text();
-            console.log(token)
+            console.log(token);
             auth.setToken(token);
             const decodedToken = decodeToken(token);
 
             console.log("Usuario:", decodedToken.iat);
 
-            const homeURL = '/home';
-                window.history.replaceState({}, document.title, homeURL);
-                window.location.href = homeURL;
+            const homeURL = "/home";
+            window.history.replaceState({}, document.title, homeURL);
+            window.location.href = homeURL;
         } else {
             const errorResponse = await response.text();
             console.log("Error en la respuesta del servidor:", errorResponse);
+            isOpen = !isOpen;
+            setTimeout(() => {
+                isOpen = !isOpen;
+            }, 1500);
         }
     }
 
+    let id = getTokenById(token);
+    let rut = getTokenByRut(token);
+    console.log(id);
+    console.log(rut);
 
+    function getTokenById(token) {
+        if (!token) {
+            return null;
+        }
 
-let id = getTokenById(token);
-let rut = getTokenByRut(token);
-console.log(id);
-console.log(rut);
+        const decodedToken = decodeToken(token);
 
-function getTokenById(token) {
-  if (!token) {
-    return null;
-  }
+        if (!decodedToken || !decodedToken.id) {
+            return null;
+        }
+        return decodedToken.roles;
+    }
+    function getTokenByRut(token) {
+        if (!token) {
+            return null;
+        }
 
-  const decodedToken = decodeToken(token);
+        const decodedToken = decodeToken(token);
 
-  if (!decodedToken || !decodedToken.id) {
-    return null;
-  }
-  return decodedToken.roles;
-}
-function getTokenByRut(token) {
-  if (!token) {
-    return null;
-  }
+        if (!decodedToken || !decodedToken.roles) {
+            return null;
+        }
+        return decodedToken.sub.replace(/[.-]/g, "");
+    }
 
-  const decodedToken = decodeToken(token);
+    function decodeToken(token) {
+        if (!token) {
+            return null;
+        }
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const jsonPayload = decodeURIComponent(
+            atob(base64)
+                .split("")
+                .map(function (c) {
+                    return (
+                        "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
+                    );
+                })
+                .join("")
+        );
 
-  if (!decodedToken || !decodedToken.roles) {
-    return null;
-  }
-  return decodedToken.sub.replace(/[.-]/g, "");
-}
-
-function decodeToken(token) {
-  if (!token) {
-    return null;
-  }
-  const base64Url = token.split(".")[1];
-  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-  const jsonPayload = decodeURIComponent(
-    atob(base64)
-      .split("")
-      .map(function (c) {
-        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-      })
-      .join("")
-  );
-
-  return JSON.parse(jsonPayload);
-}
+        return JSON.parse(jsonPayload);
+    }
 </script>
 
 <body>
@@ -181,13 +180,8 @@ function decodeToken(token) {
         {#if isOpen}
             <div class="modal-overlay">
                 <div class="modal-software w-50">
-                    <div style="text-align:right">
-                        <button class="close-button" on:click={modal}
-                            >&times;</button
-                        >
-                    </div>
                     <div class="container-modal">
-                        <h2>El usuario y/o la contraseña están incorrectas</h2>
+                        <h4>El usuario y/o la contraseña están incorrectas</h4>
                     </div>
                 </div>
             </div>
