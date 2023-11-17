@@ -1,31 +1,84 @@
-PROYECTO BACKEND
-Para iniciar el proyecto de backend siga los siguientes pasos:
-* Cree un archivo de nombre: .env y copie lo siguiente:
-    PORT= 3001 // El puerto puede ser cambiado a elección
+# Taller 1
 
-    MONGO_URL= "mongodb+srv://<nombre>:<contraseña>@cluster0.svh2032.mongodb.net/"  // Los parámetros encerrados en <> deben ser reemplazados
+El taller 1 fue desarrollada en:
+- Frontend: Svelte
+- Backend: Express - Node JS
+- Base de datos: MongoDB
 
-    JWT_SECRET= "Jaqamain3pals"
+## Requisitos Previos
 
-1. Abra una terminal
+Asegúrate de tener instalado Node.js en tu máquina
 
-2. Ingrese a la carpeta de backend con el comando:
-        cd backend
+## Frontend
 
-3. Ejecute el siguiente comando para instalar todas las dependencias local
-        npm install
+1. **Ingresa al directorio 'Frontend/client'**
 
-4. Para iniciar el server ejecute el siguiente comando:
-        npx nodemon
+```bash
+cd Frontend
+cd client
+```
 
-PROYECTO FRONTEND
-Para iniciar el proyecto de frontend siga los siguientes pasos:
-1. Abra una terminal
-2. Ingrese a la carpeta de frontend con el comando:
-        cd frontend
-3. Ingrese a la carpeta de client con el comando:
-        cd client
-4. Ejecute el siguiente comando para instalar todas las dependencias local
-        npm install
-5. Para iniciar el frontend ejecute el siguiente comando:
-        npm start
+2. **Instala las dependencias**
+
+```bash
+npm install
+```
+
+3. **Configura las variables de entorno creando un archivo .env en el directorio client y proporciona el valor necesario que es la url en donde se corre el servidor:**
+- VITE_BASE_API_URL = ""
+
+4. **Inicia la aplicación**
+
+```bash
+npm run dev
+```
+
+## Base de datos
+
+1. **Regístrate en MongoDB Atlas:**
+
+   - Dirígete a [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+   - Haz clic en "Get Started Free".
+   - Sigue el proceso de registro para crear una cuenta.
+
+2. **Crea un Proyecto:**
+
+   - Después de iniciar sesión, crea un nuevo proyecto desde el dashboard.
+   - Selecciona el proyecto recién creado.
+
+3. **Crea un Cluster:**
+
+   - En el dashboard del proyecto, haz clic en "Build a Cluster".
+   - Selecciona las opciones deseadas para tu cluster y haz clic en "Create Cluster".
+
+4. **Conexión:**
+
+   - En el dashboard del proyecto, haz clic en "Clusters" en el menú de la izquierda.
+   - Haz clic en el botón "Connect" para tu cluster.
+   - Selecciona "Connect your application" y copia la cadena de conexión y luego ponla en la variable de entorno: 'MONGO_URL'.
+
+## Backend
+
+1. **Ingresa al directorio 'Backend'**
+
+```bash
+cd Backend
+```
+
+2. **Instala las dependencias**
+
+```bash
+npm install
+```
+
+3. **Configura las variables de entorno creando un archivo .env en el directorio backend y proporciona los valores necesarios que son:**
+ 
+- PORT = ""
+- MONGO_URL = ""
+- JWT_SECRET= "Jaqamain3pals"
+
+4. **Inicia la aplicación**
+
+```bash
+npx nodemon
+```
