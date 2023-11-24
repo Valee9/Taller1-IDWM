@@ -1,14 +1,26 @@
 <script>
+    /**
+     * Importación del método `auth` para gestionar el token de autenticación,
+     * del logo de la empresa y de la imagen de una persona.
+     */
     import { auth } from "../stores/Auth";
     import dumbo from "../assets/Dumbo.png";
     import loginPerson from "../assets/Login.png";
 
+    /**
+     * Declaración e inicialización de las variables de los campos de inicio de sesión.
+     */
     let user = "";
     let password = "";
     let rutError = true;
     let passwordError = true;
     let isOpen = false;
 
+    /**
+     * Maneja el cambio en el campo de rut del formulario y si tiene algún error.
+     * @function handleChangeRut
+     * @param e evento de cambio en el campo de rut.
+     */
     function handleChangeRut(e) {
         if (e.key === " ") {
             e.preventDefault();
@@ -17,6 +29,11 @@
             rutError = user.trim() === "";
         }
     }
+    /**
+     * Maneja el cambio en el campo de rut del formulario y si tiene algún error.
+     * @function handleChangePassword
+     * @param e evento de cambio en el campo de contraseña.
+     */
     function handleChangePassword(e) {
         if (e.key === " ") {
             e.preventDefault();
@@ -26,14 +43,23 @@
         }
     }
 
+    // Token de autenticación almacenado en la sesión del navegador.
     let token = sessionStorage.getItem("jwtToken");
+    /**
+     * Realiza una solicitud asíncrona al servidor para autenticar al usuario con las credenciales proporcionadas.
+     * Actualiza el token de autenticación si la solicitud es exitosa y redirige al usuario a la página de inicio.
+     * Muestra un mensaje de error si la autenticación falla.
+     * @async
+     * @function login
+     */
     async function login() {
+        // Construye el objeto de datos para la solicitud POST
         const data = {
             user,
             password,
         };
         console.log(data);
-
+        // Realiza una solicitud POST al servidor
         const response = await fetch(
             `${import.meta.env.VITE_BASE_API_URL}/auth/login/admin`,
             {
@@ -42,78 +68,26 @@
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data),
-            }
+            },
         );
-
+        // Maneja la respuesta del servidor
         if (response.ok) {
             token = await response.text();
             console.log(token);
             auth.setToken(token);
-            const decodedToken = decodeToken(token);
-
-            console.log("Usuario:", decodedToken.iat);
-
+            // Redirige a la página de home
             const homeURL = "/home";
             window.history.replaceState({}, document.title, homeURL);
             window.location.href = homeURL;
         } else {
             const errorResponse = await response.text();
             console.log("Error en la respuesta del servidor:", errorResponse);
+            // Abre un modal de error y lo cierra después de un tiempo
             isOpen = !isOpen;
             setTimeout(() => {
                 isOpen = !isOpen;
             }, 1500);
         }
-    }
-
-    let id = getTokenById(token);
-    let rut = getTokenByRut(token);
-    console.log(id);
-    console.log(rut);
-
-    function getTokenById(token) {
-        if (!token) {
-            return null;
-        }
-
-        const decodedToken = decodeToken(token);
-
-        if (!decodedToken || !decodedToken.id) {
-            return null;
-        }
-        return decodedToken.roles;
-    }
-    function getTokenByRut(token) {
-        if (!token) {
-            return null;
-        }
-
-        const decodedToken = decodeToken(token);
-
-        if (!decodedToken || !decodedToken.roles) {
-            return null;
-        }
-        return decodedToken.sub.replace(/[.-]/g, "");
-    }
-
-    function decodeToken(token) {
-        if (!token) {
-            return null;
-        }
-        const base64Url = token.split(".")[1];
-        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-        const jsonPayload = decodeURIComponent(
-            atob(base64)
-                .split("")
-                .map(function (c) {
-                    return (
-                        "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)
-                    );
-                })
-                .join("")
-        );
-
-        return JSON.parse(jsonPayload);
     }
 </script>
 
@@ -181,7 +155,7 @@
             <div class="modal-overlay">
                 <div class="modal-software w-50">
                     <div class="container-modal">
-                        <h4>El usuario y/o la contraseña están incorrectas</h4>
+                        <h4>El usuario y/o la contraseña son incorrectas</h4>
                     </div>
                 </div>
             </div>
