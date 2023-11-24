@@ -1,4 +1,4 @@
-# Taller 1
+# Evaluación 2
 
 El taller 1 fue desarrollada en:
 - Frontend: Svelte
@@ -38,24 +38,26 @@ npm run dev
 1. **Regístrate en MongoDB Atlas:**
 
    - Dirígete a [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
-   - Haz clic en "Get Started Free".
-   - Sigue el proceso de registro para crear una cuenta.
+   - Inicia sesión o sigue el proceso de registro para crear una cuenta.
 
 2. **Crea un Proyecto:**
 
-   - Después de iniciar sesión, crea un nuevo proyecto desde el dashboard.
-   - Selecciona el proyecto recién creado.
+   - Después de iniciar sesión, crea un nuevo proyecto en la opción "project" y luego "new project".
+   - Dale un nombre a tu nuevo proyecto y dale siguiente hasta terminar la configuración
 
-3. **Crea un Cluster:**
+3. **Crea una implemetación:**
 
-   - En el dashboard del proyecto, haz clic en "Build a Cluster".
-   - Selecciona las opciones deseadas para tu cluster y haz clic en "Create Cluster".
+   - En el dashboard del proyecto, haz clic en "Create".
+   - Crea un nombre de ususario y una contraseña.
+   - Selecciona el entorno local.
+   - Agrega tu dirección IP actual
+   - Termina de configurar la implementación y presiona "Finish and close".
 
 4. **Conexión:**
 
-   - En el dashboard del proyecto, haz clic en "Clusters" en el menú de la izquierda.
-   - Haz clic en el botón "Connect" para tu cluster.
-   - Selecciona "Connect your application" y copia la cadena de conexión y luego ponla en la variable de entorno: 'MONGO_URL'.
+   - En el dashboard del proyecto, haz clic en "Connect" para conectar con el proyecto en Visual Studio Code.
+   - Selecciona MongoDB for VS Code y sigue los pasos indicados.
+   - Copia la cadena de conexión y luego ponla en la variable de entorno o archivo .env del backend como: 'MONGO_URL'.
 
 ## Backend
 
